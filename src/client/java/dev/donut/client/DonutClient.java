@@ -88,6 +88,7 @@ public final class DonutClient implements ClientModInitializer {
 
         KeyMapping.Category category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "client"));
         KeyMapping open = bind("open_gui", GLFW.GLFW_KEY_RIGHT_SHIFT, category);
+        KeyMapping cloneItem = bind("clone_held_item", GLFW.GLFW_KEY_C, category);
         KeyMapping camera = bind("toggle_freecam", GLFW.GLFW_KEY_F6, category);
         KeyMapping builder = bind("open_autobuilder", InputConstants.UNKNOWN.getValue(), category);
         KeyMapping chunks = bind("toggle_chunk_finder", InputConstants.UNKNOWN.getValue(), category);
@@ -108,6 +109,9 @@ public final class DonutClient implements ClientModInitializer {
             boolean inputBlocked = ModuleKeybinds.inputBlocked(client);
             while (open.consumeClick()) {
                 if (!inputBlocked && client.screen == null) client.setScreen(new DonutScreen(config, this::save));
+            }
+            while (cloneItem.consumeClick()) {
+                if (!inputBlocked && client.screen == null) cloneHeldItem(client);
             }
             if (ModuleKeybinds.consumePress(client, 2)) {
                 if (!inputBlocked && client.screen == null && client.player != null) freecam.setEnabled(!freecam.isActive());
@@ -221,6 +225,33 @@ public final class DonutClient implements ClientModInitializer {
 
     private KeyMapping bind(String name, int key, KeyMapping.Category category) {
         return KeyBindingHelper.registerKeyBinding(new KeyMapping("key.donut." + name, InputConstants.Type.KEYSYM, key, category));
+    }
+
+    private void cloneHeldItem(Minecraft client) {
+        if (client.player == null || client.gameMode == null) return;
+        if (!client.player.getAbilities().instabuild || !client.gameMode.getPlayerMode().isCreative()) {
+            client.player.displayClientMessage(Component.literal("Creative Clone requires server-authorized Creative mode."), true);
+            return;
+        }
+        if (client.player.containerMenu != client.player.inventoryMenu) {
+            client.player.displayClientMessage(Component.literal("Close the open container before cloning."), true);
+            return;
+        }
+        var held = client.player.getMainHandItem();
+        if (held.isEmpty()) {
+            client.player.displayClientMessage(Component.literal("Hold an item to clone it."), true);
+            return;
+        }
+        var inventory = client.player.getInventory();
+        for (int slot = 0; slot < 9; slot++) {
+            if (!inventory.getItem(slot).isEmpty()) continue;
+            var clone = held.copy();
+            inventory.setItem(slot, clone);
+            client.gameMode.handleCreativeModeItemAdd(clone, slot + 36);
+            client.player.displayClientMessage(Component.literal("Cloned " + clone.getHoverName().getString() + " to the hotbar."), true);
+            return;
+        }
+        client.player.displayClientMessage(Component.literal("No empty hotbar slot for the cloned item."), true);
     }
 
     private void save() { store.save(config); }

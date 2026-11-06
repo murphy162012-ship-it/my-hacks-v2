@@ -13,5 +13,6 @@
   "key.donut.toggle_amethyst": "Toggle Amethyst Scanner",
   "key.donut.toggle_storage_highlight": "Toggle Storage Highlight",
   "key.donut.toggle_spawner_highlight": "Toggle Spawner Highlight",
-  "key.donut.toggle_singleplayer_esp": "Toggle Singleplayer ESP"
+  "key.donut.toggle_singleplayer_esp": "Toggle Singleplayer ESP",
+  "key.donut.clone_held_item": "Creative Clone Held Item"
 }
