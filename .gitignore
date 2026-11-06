@@ -1,0 +1,30 @@
+# Publish only reviewed source, required assets and project metadata.
+/*
+!/.gitignore
+!/README.md
+!/LICENSE
+!/build.gradle
+!/settings.gradle
+!/gradle.properties
+!/src/
+
+# Generated artifacts and local/private files are never committed.
+**/build/
+**/.gradle/
+**/.idea/
+**/.vscode/
+*.jar
+*.class
+*.dll
+*.exe
+*.zip
+*.log
+*.iml
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
